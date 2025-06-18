@@ -1,0 +1,112 @@
+---
+- name: Install dependencies for building Python
+  apt:
+    name:
+      - make
+      - build-essential
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - wget
+      - curl
+      - llvm
+      - libncurses5-dev
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
+      - libffi-dev
+      - liblzma-dev
+      - git
+    state: present
+    update_cache: yes
+
+- name: Clone pyenv repository for kvbpac
+  become: yes
+  become_user: kvbpac
+  git:
+    repo: 'https://github.com/pyenv/pyenv.git'
+    dest: "/home/kvbpac/.pyenv"
+    update: yes
+
+- name: Set pyenv environment variables in kvbpac .bashrc
+  become: yes
+  become_user: kvbpac
+  lineinfile:
+    dest: "/home/kvbpac/.bashrc"
+    line: 'export PYENV_ROOT="/home/kvbpac/.pyenv" && export PATH="/home/kvbpac/.pyenv/bin:$PATH" && eval "$(pyenv init -)"'
+    state: present
+    insertafter: EOF
+
+- name: Ensure pyenv is available in the shell for kvbpac
+  become: yes
+  become_user: kvbpac
+  shell: |
+    export PYENV_ROOT="/home/kvbpac/.pyenv"
+    export PATH="/home/kvbpac/.pyenv/bin:$PATH"
+    eval "$(pyenv init -)"
+    pyenv --version
+  args:
+    executable: /bin/bash
+
+- name: Install Python 3.5.10 using pyenv for kvbpac
+  become: yes
+  become_user: kvbpac
+  shell: |
+    export PYENV_ROOT="/home/kvbpac/.pyenv"
+    export PATH="/home/kvbpac/.pyenv/bin:$PATH"
+    eval "$(pyenv init -)"
+    pyenv install -s 3.5.10
+  args:
+    creates: "/home/kvbpac/.pyenv/versions/3.5.10"
+    executable: /bin/bash
+
+- name: Set Python 3.5.10 as global default for kvbpac
+  become: yes
+  become_user: kvbpac
+  shell: |
+    export PYENV_ROOT="/home/kvbpac/.pyenv"
+    export PATH="/home/kvbpac/.pyenv/bin:$PATH"
+    eval "$(pyenv init -)"
+    pyenv global 3.5.10
+  args:
+    executable: /bin/bash
+
+- name: Ensure 'python' points to Python 3.5.10 for kvbpac
+  become: yes
+  become_user: kvbpac
+  shell: |
+    export PYENV_ROOT="/home/kvbpac/.pyenv"
+    export PATH="/home/kvbpac/.pyenv/bin:$PATH"
+    eval "$(pyenv init -)"
+    pyenv rehash
+  args:
+    executable: /bin/bash
+
+- name: Verify python version for kvbpac
+  become: yes
+  become_user: kvbpac
+  shell: |
+    export PYENV_ROOT="/home/kvbpac/.pyenv"
+    export PATH="/home/kvbpac/.pyenv/bin:$PATH"
+    eval "$(pyenv init -)"
+    python --version
+  args:
+    executable: /bin/bash
+  register: python_version
+
+- name: Display Python version
+  debug:
+    msg: "{{ python_version.stdout }}"
+
+- name: Add pyenv initialization to .bashrc for kvbpac
+  become: yes
+  become_user: kvbpac
+  blockinfile:
+    dest: "/home/kvbpac/.bashrc"
+    block: |
+      export PYENV_ROOT="$HOME/.pyenv"
+      export PATH="$PYENV_ROOT/bin:$PATH"
+      eval "$(pyenv init -)"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: pyenv"

@@ -1,0 +1,10 @@
+[program:{{ app_name }}]
+command={{ virtualenv_path }}/bin/gunicorn --bind 0.0.0.0:8080 --access-logfile - --error-logfile - --capture-output --log-level info "main:app"
+directory={{ project_dir }}
+user={{ app_user }}
+autostart=true
+autorestart=true
+startretries=3
+stderr_logfile={{ app_log_dir }}/error.log
+stdout_logfile={{ app_log_dir }}/main_app.log
+environment=FLASK_ENV=production

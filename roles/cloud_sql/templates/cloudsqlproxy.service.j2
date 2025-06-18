@@ -1,0 +1,12 @@
+[Unit]
+Description=Google Cloud SQL Proxy
+After=network.target
+
+[Service]
+Type=simple
+User=kvbpac
+ExecStart=/usr/local/bin/cloud_sql_proxy -dir=/home/kvbpac/cloudsql -instances={{ cloudsql_instance_connection_name }}=unix:/home/kvbpac/cloudsql/{{ cloudsql_instance_connection_name }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

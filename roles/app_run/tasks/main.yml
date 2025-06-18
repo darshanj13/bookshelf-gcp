@@ -1,0 +1,52 @@
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install supervisor
+  apt:
+    name: supervisor
+    state: present
+
+- name: Create logs directory
+  file:
+    path: "{{ app_log_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0755'
+
+- name: Create Supervisor config from template
+  template:
+    src: supervisord_app.conf.j2
+    dest: /etc/supervisor/conf.d/{{ app_name }}.conf
+    mode: 0644
+  notify: restart supervisor
+
+- name: Ensure supervisor service is running and enabled
+  service:
+    name: supervisor
+    state: started
+    enabled: yes
+
+- name: Configure Ops Agent to collect app logs
+  copy:
+    dest: /etc/google-cloud-ops-agent/config.yaml
+    content: |
+      logging:
+        receivers:
+          bookshelf-app-logs:
+            type: files
+            include_paths:
+              - /var/log/bookshelf/*.log
+        service:
+          pipelines:
+            default_pipeline:
+              receivers: [bookshelf-app-logs]
+    mode: '0644'
+  notify: restart ops agent
+
+- name: Ensure Google Ops Agent is running
+  service:
+    name: google-cloud-ops-agent
+    state: started
+    enabled: yes

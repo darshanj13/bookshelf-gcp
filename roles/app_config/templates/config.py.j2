@@ -1,0 +1,42 @@
+# {{ ansible_managed }}
+
+import os
+
+# Flask secret key
+SECRET_KEY = '{{ secret_key }}'
+
+# Data backend configuration
+DATA_BACKEND = '{{ data_backend }}'
+
+# Google Cloud Project ID
+PROJECT_ID = '{{ gcp_project_id }}'
+
+# CloudSQL configuration
+CLOUDSQL_USER = '{{ cloudsql_user }}'
+CLOUDSQL_PASSWORD = '{{ cloudsql_password }}'
+CLOUDSQL_DATABASE = '{{ cloudsql_database }}'
+CLOUDSQL_CONNECTION_NAME = '{{ cloudsql_connection_name }}'
+
+# SQLAlchemy URIs (no changes needed here)
+LOCAL_SQLALCHEMY_DATABASE_URI = (
+    'mysql+pymysql://{user}:{password}@127.0.0.1:3306/{database}'
+).format(user=CLOUDSQL_USER, password=CLOUDSQL_PASSWORD, database=CLOUDSQL_DATABASE)
+
+LIVE_SQLALCHEMY_DATABASE_URI = (
+    'mysql+pymysql://{user}:{password}@localhost/{database}'
+    '?unix_socket=/home/kvbpac/cloudsql/{connection_name}'
+).format(
+    user=CLOUDSQL_USER,
+    password=CLOUDSQL_PASSWORD,
+    database=CLOUDSQL_DATABASE,
+    connection_name=CLOUDSQL_CONNECTION_NAME
+)
+
+SQLALCHEMY_DATABASE_URI = LIVE_SQLALCHEMY_DATABASE_URI  # Simplified for your use case
+
+# Cloud Storage configuration
+CLOUD_STORAGE_BUCKET = '{{ cloud_storage_bucket }}'
+
+# OAuth2 configuration
+GOOGLE_OAUTH2_CLIENT_ID = '{{ oauth2_client_id }}'
+GOOGLE_OAUTH2_CLIENT_SECRET = '{{ oauth2_client_secret }}'

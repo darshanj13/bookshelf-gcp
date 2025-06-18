@@ -1,0 +1,7 @@
+---
+app_name: bookshelf_app
+app_user: kvbpac
+project_dir: /home/kvbpac/projects/getting-started-python/7-gce
+virtualenv_path: /home/kvbpac/.pyenv/versions/3.5.10
+app_log_dir: /var/log/bookshelf
+

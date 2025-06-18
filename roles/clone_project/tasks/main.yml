@@ -1,0 +1,17 @@
+- name: Ensure project directory exists for kvbpac
+  become: yes
+  file:
+    path: /home/kvbpac/projects
+    state: directory
+    mode: '0755'
+    owner: kvbpac
+    group: kvbpac
+
+- name: Clone getting-started-python repo (steps branch) as kvbpac
+  become: yes
+  become_user: kvbpac
+  git:
+    repo: https://github.com/GoogleCloudPlatform/getting-started-python.git
+    dest: /home/kvbpac/projects/getting-started-python
+    version: steps
+    update: yes

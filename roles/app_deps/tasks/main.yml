@@ -1,0 +1,22 @@
+---
+- name: Upgrade pip to version 20 for kvbpac
+  become: yes
+  become_user: kvbpac
+  shell: |
+    export PYENV_ROOT="/home/kvbpac/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+    pip install --upgrade pip==20.0.2
+  args:
+    executable: /bin/bash
+- name: Install Python dependencies from requirements.txt for kvbpac
+  become: yes
+  become_user: kvbpac
+  shell: |
+    export PYENV_ROOT="/home/kvbpac/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+    pip install --prefer-binary -r /home/kvbpac/projects/getting-started-python/7-gce/requirements.txt
+  args:
+    executable: /bin/bash
+

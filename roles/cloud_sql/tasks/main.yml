@@ -1,0 +1,49 @@
+---
+- name: Ensure cloudsql socket directory exists
+  file:
+    path: /home/kvbpac/cloudsql
+    state: directory
+    owner: kvbpac
+    group: kvbpac
+    mode: '0755'
+
+- name: Download Cloud SQL Proxy v1
+  become: yes
+  become_user: kvbpac
+  get_url:
+    url: https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64
+    dest: /home/kvbpac/cloud_sql_proxy
+    mode: '0755'
+
+- name: Move Cloud SQL Proxy to /usr/local/bin
+  become: yes
+  copy:
+    src: /home/kvbpac/cloud_sql_proxy
+    dest: /usr/local/bin/cloud_sql_proxy
+    remote_src: yes
+    mode: '0755'
+
+- name: Create cloudsqlproxy systemd service from template
+  become: yes
+  template:
+    src: cloudsqlproxy.service.j2
+    dest: /etc/systemd/system/cloudsqlproxy.service
+    mode: '0644'
+
+- name: Reload systemd to pick up new service
+  become: yes
+  command: systemctl daemon-reload
+
+- name: Enable and start cloudsqlproxy service
+  become: yes
+  systemd:
+    name: cloudsqlproxy
+    enabled: yes
+    state: started
+
+- name: Wait for Cloud SQL Proxy socket to initialize
+  pause:
+    seconds: 5
+
+
+

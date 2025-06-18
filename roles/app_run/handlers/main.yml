@@ -1,0 +1,11 @@
+---
+- name: restart supervisor
+  service:
+    name: supervisor
+    state: restarted
+
+- name: restart ops agent
+  service:
+    name: google-cloud-ops-agent
+    state: restarted
+
